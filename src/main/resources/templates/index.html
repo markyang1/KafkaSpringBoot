@@ -1,0 +1,61 @@
+<!DOCTYPE HTML>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>OnePlacement</title>
+    <link rel="stylesheet" th:href="@{webjars/bootstrap/4.2.1/css/bootstrap.min.css}"/>
+    <link rel="stylesheet" th:href="@{/css/main.css}"/>
+</head>
+
+<body style="background-color:powderblue;">
+<script type="text/javascript" th:src="@{webjars/bootstrap/4.2.1/js/bootstrap.min.js}"></script>
+<nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top">
+    <a class="navbar-brand" href="#">Some Registration System</a>
+</nav>
+
+<main role="main" class="container">
+
+<div class="card">
+  <div class="card-header">
+    <b>Phase 2C Registration</b>
+  </div>
+  <div class="card-body">
+	<form method="post" th:object="${candidate}">
+		  <div class="form-group">
+		    <label for="cddNricLbl">Candidate NRIC</label>
+		    <input type="text" th:field="*{nric}" class="form-control" id="cddNricInput" aria-describedby="cddNricLblHelp" placeholder="Enter NRIC">
+		  </div>
+		  <div class="form-group">
+		    <label for="cddNnameLbl">Candidate Name</label>
+		    <input type="text" th:field="*{name}" class="form-control" id="cddNameInput" placeholder="Enter Full Name">
+		  </div>
+		  <div class="form-group">
+		  	<label for="cddGenderLbl">Candidate Gender</label>
+			<select class="form-control selectpicker" th:field="*{gender}">
+				<option value="">Nothing selected</option>
+				<option th:each="gender : ${T(com.sao.onep.model.Gender).values()}"
+				   th:value="${gender}"
+				   th:text="${gender}">
+				 </option>
+			</select>
+		  </div>		  
+		  <hr/>
+		  <div class="form-group">
+		    <label for="parentEmailLbl">Parent Email</label>
+		    <input type="text" th:field="*{email}" class="form-control" id="parentEmailInput" placeholder="Enter Email Address">
+		    <small id="parentEmailLblHelp" class="form-text text-muted">Your details will be kept confidential.</small>
+		  </div>
+		  <hr/>
+		  <button type="submit" class="btn btn-primary">Submit</button>
+	</form>
+  </div>
+</div>   
+
+
+</main>
+<!-- /.container -->
+
+
+</body>
+</html>

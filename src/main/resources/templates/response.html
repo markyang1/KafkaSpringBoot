@@ -1,0 +1,41 @@
+<!DOCTYPE HTML>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>OnePlacement</title>
+
+    <link rel="stylesheet" th:href="@{webjars/bootstrap/4.2.1/css/bootstrap.min.css}"/>
+    <link rel="stylesheet" th:href="@{/css/main.css}"/>
+</head>
+<body>
+
+<!-- Navigation -->
+<nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top">
+    <a class="navbar-brand" href="#">Mark's Registration System</a>
+</nav>
+
+
+<div class="container">
+
+  <div class="card">
+    <div class="card-header">
+      <b>Submission Summary</b>
+    </div>
+    <div class="card-body">
+      <label for="cddNricLbl">Candidate NRIC : </label>
+      <span th:text="${candidate.nric}" th:if="${candidate.nric != null}"></span><br/>
+      <label for="cddNnameLbl">Candidate Name : </label>
+      <span th:text="${candidate.name}" th:if="${candidate.name != null}"></span><br/>
+      <label for="cddGenderLbl">Candidate Gender : </label>
+      <span th:text="${candidate.gender}" th:if="${candidate.gender != null}"></span><br/>
+      <label for="parentEmailLbl">Parent Email : </label>
+      <span th:text="${candidate.email}" th:if="${candidate.email != null}"></span><br/>
+      <hr/>
+      <a th:href="@{/}" class="btn btn-primary">Go back</a>
+    </div>
+  </div> 
+  
+</div>
+
+</body>
+</html>

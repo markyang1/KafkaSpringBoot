@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<title>Home</title>
+<link rel="stylesheet" th:href="@{webjars/bootstrap/4.2.1/css/bootstrap.min.css}"/>
+<link rel="stylesheet" th:href="@{/css/main.css}"/>
+<script type="text/javascript" th:src="@{webjars/sockjs-client/sockjs.min.js}"></script>
+<script type="text/javascript" th:src="@{webjars/stomp-websocket/stomp.min.js}"></script>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.2/moment.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.min.js"></script>
+<script type="text/javascript">
+	var stompClient;
+	
+	/* Chart Configuration */
+	var config = {
+		type : 'line',
+		data : {
+			labels : [],
+			datasets : [ {
+				label : 'Temperature',
+				backgroudColor : 'rgb(255, 99, 132)',
+				borderColor : 'rgb(255, 99, 132)',
+				data : [],
+				fill : false
+
+			} ]
+		},
+		options : {
+			responsive : true,
+			title : {
+				display : true,
+				text : 'Temperature'
+			},
+			tooltips : {
+				mode : 'index',
+				intersect : false
+			},
+			hover : {
+				mode : 'nearest',
+				intersect : true
+			},
+			scales : {
+				xAxes : [ {
+					display : true,
+					type : 'time',
+					time : {
+						displayFormats : {
+							quarter : 'h:mm:ss a'
+						}
+					},
+					scaleLabel : {
+						display : true,
+						labelString : 'Time'
+					}
+				} ],
+				yAxes : [ {
+					display : true,
+					scaleLabel : {
+						display : true,
+						labelString : 'Value'
+					}
+				} ]
+			}
+		}
+	};
+
+	var genderCfg = {
+		  type: 'doughnut',  
+		  data: {
+		    labels: ['MALE','FEMALE','COMPLICATED'],
+		    datasets: [{
+		      label: 'Gender',
+		      data: [0,0,0],
+		      backgroundColor: [
+		      'rgb(255, 99, 132)',
+		      'rgb(54, 162, 235)',
+		      'rgb(255, 205, 86)'
+		      ]
+		    }]
+		  },
+		  options: {
+		   	//cutoutPercentage: 40,
+		    responsive: false,
+		  }
+		};
+	
+ 
+	var barCfg = {
+	type: 'bar',
+	data: {
+		labels: ["Mon", "Tue", "Wed", "Thu", "Fri"],
+		datasets: [
+			{
+			label: 'Phase X',
+			data: [10],
+			backgroundColor: 'rgb(255, 99, 132)',
+			},
+			{
+			label: 'Phase 2C',
+			data: [0],
+			backgroundColor: 'rgb(54, 162, 235)',
+			}
+		]
+		},
+	options: {
+		responsive: true,
+		plugins: {
+		legend: {position: 'top',
+			},
+			title: {
+				display: true,
+				text: 'Chart.js Bar Chart'
+				}
+			}
+		},
+	};
+
+	/* Document Ready Event */
+	$(document).ready(function() {
+		
+		//linechart
+		// var ctx = document.getElementById('lineChart').getContext('2d');
+		// window.myLine = new Chart(ctx, config);
+
+		//barchart
+		var totalRegCtx = document.getElementById("barChart");
+		var mytotalRegChart = new Chart(totalRegCtx, barCfg);
+
+		console.log("bar chart");
+		console.log(barCfg.data.datasets);
+		console.log(barCfg.data.datasets[1]);
+		console.log(barCfg.data.datasets[1].data[0]);
+
+		//doughnut
+		var genderCtx = document.getElementById("genderChart");
+		var myGenderChart = new Chart(genderCtx, genderCfg);
+		
+		/* Configuring WebSocket on Client Side */
+		var socket = new SockJS('/live-feed');
+		stompClient = Stomp.over(socket);
+		stompClient.connect({}, function(frame) {
+			stompClient.subscribe('/topic/test', function(candidate) {
+				console.log("Printing info");
+				console.log(JSON.parse(candidate.body));
+				//set the ID# reference to print the value
+				$('#current').text(JSON.parse(candidate.body).nric);
+
+				/* Start of Linechart config */
+				/* Push new data On X-Axis of Chart */
+				// config.data.labels.push(new Date());
+				// /* Push new data on Y-Axis of chart */
+				// config.data.datasets.forEach(function(dataset) {
+				// 	dataset.data.push(JSON.parse(candidate.body).nric);
+				// });
+				// window.myLine.update();
+				/* End of Linechart config */
+
+				//gender chart update
+				var genderVal = JSON.parse(candidate.body).gender;
+				console.log(genderCfg.data.datasets);
+
+				genderCfg.data.datasets.forEach(function(dataset) {
+					if (genderVal == "MALE") {
+						dataset.data[0] = dataset.data[0]+1;
+					}
+					
+					if (genderVal == "FEMALE") {
+						dataset.data[1] = dataset.data[1]+1;
+					}
+
+					if (genderVal == "COMPLICATED") {
+						dataset.data[2] = dataset.data[2]+1;
+					}
+				});
+				myGenderChart.update();
+				
+				//bar chart update
+				barCfg.data.datasets[1].data[0] = barCfg.data.datasets[1].data[0]+1;
+				console.log(barCfg.data.datasets[1].data[0]);
+				mytotalRegChart.update();
+				
+			});
+		});
+
+	});
+</script>
+</head>
+<body style="background-color:whitesmoke;">
+	<nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top border-bottom border-warning border-5">
+		<a class="navbar-brand" href="#">Another Application Dashboard</a>
+	</nav>
+	<main role="main" class="container">
+		<div class="model">
+			<div class="modal-dialog" style="width:80%;height:auto">
+				<div class="modal-content">
+					<div class="model-body">
+						<div class="container" style="width:80%">
+							<div class="alert alert-danger d-flex align-self-center" role="alert" style="width:300px;margin-top:10px;">
+								<span class="text-center">Current Record : <b id="current"></b></span>
+						</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	<div class="model">
+		<div class="modal-dialog" style="width:80%;height:auto">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title">No. of Registrations</h5>
+				</div>
+				<div class="model-body">
+					<div class="container" style="width:80%">
+						<canvas id="barChart"></canvas>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="model">
+		<div class="modal-dialog" style="width:80%;height:auto">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title">Gender Breakdown</h5>
+				</div>
+				<div class="model-body">
+					<div class="container" style="width:80%">
+						<canvas id="genderChart"></canvas>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!--<div class="model">
+		<div class="modal-dialog" style="width:80%;height:auto">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title">No. of Registrations</h5>
+				</div>
+				<div class="model-body">
+					<div class="container" style="width:80%">
+						<canvas id="lineChart"></canvas>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>	-->
+</main>
+<!-- /.container -->
+</body>
+</html>
